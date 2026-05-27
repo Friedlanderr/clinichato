@@ -9,38 +9,161 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LeadsRouteImport } from './routes/leads'
+import { Route as ConversationsRouteImport } from './routes/conversations'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AppointmentsRouteImport } from './routes/appointments'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SettingsIntegrationRouteImport } from './routes/settings.integration'
+import { Route as SettingsClinicRouteImport } from './routes/settings.clinic'
+import { Route as SettingsBotRouteImport } from './routes/settings.bot'
 
+const LeadsRoute = LeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConversationsRoute = ConversationsRouteImport.update({
+  id: '/conversations',
+  path: '/conversations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppointmentsRoute = AppointmentsRouteImport.update({
+  id: '/appointments',
+  path: '/appointments',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsIntegrationRoute = SettingsIntegrationRouteImport.update({
+  id: '/settings/integration',
+  path: '/settings/integration',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsClinicRoute = SettingsClinicRouteImport.update({
+  id: '/settings/clinic',
+  path: '/settings/clinic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsBotRoute = SettingsBotRouteImport.update({
+  id: '/settings/bot',
+  path: '/settings/bot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/appointments': typeof AppointmentsRoute
+  '/auth': typeof AuthRoute
+  '/conversations': typeof ConversationsRoute
+  '/leads': typeof LeadsRoute
+  '/settings/bot': typeof SettingsBotRoute
+  '/settings/clinic': typeof SettingsClinicRoute
+  '/settings/integration': typeof SettingsIntegrationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/appointments': typeof AppointmentsRoute
+  '/auth': typeof AuthRoute
+  '/conversations': typeof ConversationsRoute
+  '/leads': typeof LeadsRoute
+  '/settings/bot': typeof SettingsBotRoute
+  '/settings/clinic': typeof SettingsClinicRoute
+  '/settings/integration': typeof SettingsIntegrationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/appointments': typeof AppointmentsRoute
+  '/auth': typeof AuthRoute
+  '/conversations': typeof ConversationsRoute
+  '/leads': typeof LeadsRoute
+  '/settings/bot': typeof SettingsBotRoute
+  '/settings/clinic': typeof SettingsClinicRoute
+  '/settings/integration': typeof SettingsIntegrationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/appointments'
+    | '/auth'
+    | '/conversations'
+    | '/leads'
+    | '/settings/bot'
+    | '/settings/clinic'
+    | '/settings/integration'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/appointments'
+    | '/auth'
+    | '/conversations'
+    | '/leads'
+    | '/settings/bot'
+    | '/settings/clinic'
+    | '/settings/integration'
+  id:
+    | '__root__'
+    | '/'
+    | '/appointments'
+    | '/auth'
+    | '/conversations'
+    | '/leads'
+    | '/settings/bot'
+    | '/settings/clinic'
+    | '/settings/integration'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppointmentsRoute: typeof AppointmentsRoute
+  AuthRoute: typeof AuthRoute
+  ConversationsRoute: typeof ConversationsRoute
+  LeadsRoute: typeof LeadsRoute
+  SettingsBotRoute: typeof SettingsBotRoute
+  SettingsClinicRoute: typeof SettingsClinicRoute
+  SettingsIntegrationRoute: typeof SettingsIntegrationRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/leads': {
+      id: '/leads'
+      path: '/leads'
+      fullPath: '/leads'
+      preLoaderRoute: typeof LeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conversations': {
+      id: '/conversations'
+      path: '/conversations'
+      fullPath: '/conversations'
+      preLoaderRoute: typeof ConversationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/appointments': {
+      id: '/appointments'
+      path: '/appointments'
+      fullPath: '/appointments'
+      preLoaderRoute: typeof AppointmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +171,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/integration': {
+      id: '/settings/integration'
+      path: '/settings/integration'
+      fullPath: '/settings/integration'
+      preLoaderRoute: typeof SettingsIntegrationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/clinic': {
+      id: '/settings/clinic'
+      path: '/settings/clinic'
+      fullPath: '/settings/clinic'
+      preLoaderRoute: typeof SettingsClinicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/bot': {
+      id: '/settings/bot'
+      path: '/settings/bot'
+      fullPath: '/settings/bot'
+      preLoaderRoute: typeof SettingsBotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppointmentsRoute: AppointmentsRoute,
+  AuthRoute: AuthRoute,
+  ConversationsRoute: ConversationsRoute,
+  LeadsRoute: LeadsRoute,
+  SettingsBotRoute: SettingsBotRoute,
+  SettingsClinicRoute: SettingsClinicRoute,
+  SettingsIntegrationRoute: SettingsIntegrationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
