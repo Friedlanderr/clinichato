@@ -15,8 +15,8 @@ export const sendAgentMessage = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: conv } = await supabaseAdmin
       .from("conversations").select("id, contact_id, contacts(whatsapp_number)").eq("id", data.conversationId).single();
-    // @ts-expect-error nested select
-    const number = conv?.contacts?.whatsapp_number as string | undefined;
+    const contacts = (conv as unknown as { contacts: { whatsapp_number: string } | null })?.contacts;
+    const number = contacts?.whatsapp_number;
     if (!number) throw new Error("Conversation not found");
 
     await sendWhatsApp(number, data.text);
