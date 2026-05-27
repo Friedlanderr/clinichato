@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabase-browser";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus } from "lucide-react";
@@ -45,13 +45,14 @@ function ClinicSettings() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    supabase.from("clinic_config").select("*").limit(1).maybeSingle().then(({ data }) => setCfg(data));
+    getSupabase().then((supabase) => supabase.from("clinic_config").select("*").limit(1).maybeSingle()).then(({ data }) => setCfg(data));
   }, []);
 
   if (!cfg) return <AppShell title="Dados da clínica"><p className="text-sm text-muted-foreground">Carregando…</p></AppShell>;
 
   const save = async () => {
     setBusy(true);
+    const supabase = await getSupabase();
     const { error } = await supabase.from("clinic_config").update({
       name: cfg.name, address: cfg.address, phone: cfg.phone, email: cfg.email,
       specialties: cfg.specialties, insurance_plans: cfg.insurance_plans,

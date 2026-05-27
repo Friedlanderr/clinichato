@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabase-browser";
 import { toast } from "sonner";
 import { Info } from "lucide-react";
 
@@ -23,13 +23,14 @@ function IntegrationSettings() {
   const webhookUrl = `https://${projectId}.supabase.co/functions/v1/whatsapp-webhook`;
 
   useEffect(() => {
-    supabase.from("integration_config").select("*").limit(1).maybeSingle().then(({ data }) => setCfg(data));
+    getSupabase().then((supabase) => supabase.from("integration_config").select("*").limit(1).maybeSingle()).then(({ data }) => setCfg(data));
   }, []);
 
   if (!cfg) return <AppShell title="Integração WhatsApp"><p className="text-sm text-muted-foreground">Carregando…</p></AppShell>;
 
   const save = async () => {
     setBusy(true);
+    const supabase = await getSupabase();
     const { error } = await supabase.from("integration_config").update({
       evolution_api_url: cfg.evolution_api_url,
       evolution_api_key: cfg.evolution_api_key,

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabase-browser";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -22,7 +22,7 @@ function BotSettings() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    supabase.from("bot_config").select("*").limit(1).maybeSingle().then(({ data }) => {
+    getSupabase().then((supabase) => supabase.from("bot_config").select("*").limit(1).maybeSingle()).then(({ data }) => {
       if (data) {
         setCfg(data);
         setFaq(Array.isArray(data.faq) ? (data.faq as unknown as { q: string; a: string }[]) : []);
@@ -34,6 +34,7 @@ function BotSettings() {
 
   const save = async () => {
     setBusy(true);
+    const supabase = await getSupabase();
     const { error } = await supabase.from("bot_config").update({
       system_prompt: cfg.system_prompt,
       faq,

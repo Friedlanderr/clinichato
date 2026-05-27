@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabase-browser";
 import { MessagesSquare, CalendarDays, Users, UserCog } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -19,6 +19,7 @@ function Dashboard() {
 
   useEffect(() => {
     const load = async () => {
+      const supabase = await getSupabase();
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const iso = today.toISOString();
       const [c, a, l, w, r] = await Promise.all([
