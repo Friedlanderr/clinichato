@@ -25,7 +25,7 @@ function BotSettings() {
     supabase.from("bot_config").select("*").limit(1).maybeSingle().then(({ data }) => {
       if (data) {
         setCfg(data);
-        setFaq(Array.isArray(data.faq) ? data.faq : []);
+        setFaq(Array.isArray(data.faq) ? (data.faq as unknown as { q: string; a: string }[]) : []);
       }
     });
   }, []);
