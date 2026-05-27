@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsIntegrationRouteImport } from './routes/settings.integration'
 import { Route as SettingsClinicRouteImport } from './routes/settings.clinic'
 import { Route as SettingsBotRouteImport } from './routes/settings.bot'
+import { Route as ApiPublicWebhooksWhatsappRouteImport } from './routes/api/public/webhooks/whatsapp'
 
 const LeadsRoute = LeadsRouteImport.update({
   id: '/leads',
@@ -58,6 +59,12 @@ const SettingsBotRoute = SettingsBotRouteImport.update({
   path: '/settings/bot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksWhatsappRoute =
+  ApiPublicWebhooksWhatsappRouteImport.update({
+    id: '/api/public/webhooks/whatsapp',
+    path: '/api/public/webhooks/whatsapp',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/settings/bot': typeof SettingsBotRoute
   '/settings/clinic': typeof SettingsClinicRoute
   '/settings/integration': typeof SettingsIntegrationRoute
+  '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +86,7 @@ export interface FileRoutesByTo {
   '/settings/bot': typeof SettingsBotRoute
   '/settings/clinic': typeof SettingsClinicRoute
   '/settings/integration': typeof SettingsIntegrationRoute
+  '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +98,7 @@ export interface FileRoutesById {
   '/settings/bot': typeof SettingsBotRoute
   '/settings/clinic': typeof SettingsClinicRoute
   '/settings/integration': typeof SettingsIntegrationRoute
+  '/api/public/webhooks/whatsapp': typeof ApiPublicWebhooksWhatsappRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +111,7 @@ export interface FileRouteTypes {
     | '/settings/bot'
     | '/settings/clinic'
     | '/settings/integration'
+    | '/api/public/webhooks/whatsapp'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +122,7 @@ export interface FileRouteTypes {
     | '/settings/bot'
     | '/settings/clinic'
     | '/settings/integration'
+    | '/api/public/webhooks/whatsapp'
   id:
     | '__root__'
     | '/'
@@ -121,6 +133,7 @@ export interface FileRouteTypes {
     | '/settings/bot'
     | '/settings/clinic'
     | '/settings/integration'
+    | '/api/public/webhooks/whatsapp'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +145,7 @@ export interface RootRouteChildren {
   SettingsBotRoute: typeof SettingsBotRoute
   SettingsClinicRoute: typeof SettingsClinicRoute
   SettingsIntegrationRoute: typeof SettingsIntegrationRoute
+  ApiPublicWebhooksWhatsappRoute: typeof ApiPublicWebhooksWhatsappRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +206,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsBotRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/whatsapp': {
+      id: '/api/public/webhooks/whatsapp'
+      path: '/api/public/webhooks/whatsapp'
+      fullPath: '/api/public/webhooks/whatsapp'
+      preLoaderRoute: typeof ApiPublicWebhooksWhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +225,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsBotRoute: SettingsBotRoute,
   SettingsClinicRoute: SettingsClinicRoute,
   SettingsIntegrationRoute: SettingsIntegrationRoute,
+  ApiPublicWebhooksWhatsappRoute: ApiPublicWebhooksWhatsappRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
