@@ -14,16 +14,351 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          appointment_date: string
+          appointment_time: string
+          contact_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          patient_name: string
+          phone: string
+          specialty: string | null
+          status: Database["public"]["Enums"]["appointment_status"]
+          updated_at: string
+        }
+        Insert: {
+          appointment_date: string
+          appointment_time: string
+          contact_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_name: string
+          phone: string
+          specialty?: string | null
+          status?: Database["public"]["Enums"]["appointment_status"]
+          updated_at?: string
+        }
+        Update: {
+          appointment_date?: string
+          appointment_time?: string
+          contact_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_name?: string
+          phone?: string
+          specialty?: string | null
+          status?: Database["public"]["Enums"]["appointment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bot_config: {
+        Row: {
+          faq: Json
+          id: string
+          is_active: boolean
+          off_hours_message: string
+          system_prompt: string
+          updated_at: string
+          working_days: Json
+          working_hours_end: string
+          working_hours_start: string
+        }
+        Insert: {
+          faq?: Json
+          id?: string
+          is_active?: boolean
+          off_hours_message?: string
+          system_prompt?: string
+          updated_at?: string
+          working_days?: Json
+          working_hours_end?: string
+          working_hours_start?: string
+        }
+        Update: {
+          faq?: Json
+          id?: string
+          is_active?: boolean
+          off_hours_message?: string
+          system_prompt?: string
+          updated_at?: string
+          working_days?: Json
+          working_hours_end?: string
+          working_hours_start?: string
+        }
+        Relationships: []
+      }
+      clinic_config: {
+        Row: {
+          address: string | null
+          email: string | null
+          id: string
+          insurance_plans: Json
+          name: string
+          phone: string | null
+          specialties: Json
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          email?: string | null
+          id?: string
+          insurance_plans?: Json
+          name?: string
+          phone?: string | null
+          specialties?: Json
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          email?: string | null
+          id?: string
+          insurance_plans?: Json
+          name?: string
+          phone?: string | null
+          specialties?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          updated_at: string
+          whatsapp_number: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          updated_at?: string
+          whatsapp_number: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          updated_at?: string
+          whatsapp_number?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          assigned_to: string | null
+          contact_id: string
+          created_at: string
+          id: string
+          last_message_at: string | null
+          status: Database["public"]["Enums"]["conversation_status"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          contact_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          status?: Database["public"]["Enums"]["conversation_status"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          contact_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          status?: Database["public"]["Enums"]["conversation_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_config: {
+        Row: {
+          evolution_api_key: string | null
+          evolution_api_url: string | null
+          id: string
+          instance_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          evolution_api_key?: string | null
+          evolution_api_url?: string | null
+          id?: string
+          instance_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          evolution_api_key?: string | null
+          evolution_api_url?: string | null
+          id?: string
+          instance_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          email: string | null
+          id: string
+          interest: string | null
+          name: string
+          phone: string
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          interest?: string | null
+          name: string
+          phone: string
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          interest?: string | null
+          name?: string
+          phone?: string
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["message_role"]
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["message_role"]
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["message_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "attendant"
+      appointment_status: "pending" | "confirmed" | "cancelled"
+      conversation_status: "bot_active" | "waiting_human" | "closed"
+      lead_status: "new" | "contacted" | "converted"
+      message_role: "user" | "assistant" | "human_agent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +485,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "attendant"],
+      appointment_status: ["pending", "confirmed", "cancelled"],
+      conversation_status: ["bot_active", "waiting_human", "closed"],
+      lead_status: ["new", "contacted", "converted"],
+      message_role: ["user", "assistant", "human_agent"],
+    },
   },
 } as const
