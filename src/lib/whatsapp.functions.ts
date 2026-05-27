@@ -14,18 +14,31 @@ export const sendAgentMessage = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { data: conv } = await supabaseAdmin
-      .from("conversations").select("id, contact_id, contacts(whatsapp_number)").eq("id", data.conversationId).single();
+      .from("conversations")
+      .select("id, contact_id, contacts(whatsapp_number)")
+      .eq("id", data.conversationId)
+      .single();
+
     const contacts = (conv as unknown as { contacts: { whatsapp_number: string } | null })?.contacts;
     const number = contacts?.whatsapp_number;
     if (!number) throw new Error("Conversation not found");
 
     await sendWhatsApp(number, data.text);
+
+    // Salva como "human_agent" para diferenciar visualmente do bot ("assistant")
     await supabaseAdmin.from("messages").insert({
-      conversation_id: data.conversationId, role: "assistant", content: data.text,
+      conversation_id: data.conversationId,
+      role: "human_agent" as any,
+      content: data.text,
     });
-    await supabaseAdmin.from("conversations").update({
-      last_message_at: new Date().toISOString(),
-      assigned_to: context.userId,
-    }).eq("id", data.conversationId);
+
+    await supabaseAdmin
+      .from("conversations")
+      .update({
+        last_message_at: new Date().toISOString(),
+        assigned_to: context.userId,
+      })
+      .eq("id", data.conversationId);
+
     return { ok: true };
   });
