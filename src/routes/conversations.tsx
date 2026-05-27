@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessagesSquare, Send, UserCog, CheckCircle2 } from "lucide-react";
+import { MessagesSquare, Send, UserCog, CheckCircle2, Bot, User } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/conversations")({
@@ -25,13 +25,23 @@ type Conv = {
   contact_id: string;
   contacts: { name: string | null; whatsapp_number: string } | null;
 };
-type Msg = { id: string; role: "user" | "assistant"; content: string; created_at: string };
+type Msg = { id: string; role: "user" | "assistant" | "human_agent"; content: string; created_at: string };
 
 function statusLabel(s: Conv["status"]) {
   return s === "bot_active" ? "Bot ativo" : s === "waiting_human" ? "Aguardando humano" : "Encerrada";
 }
 function statusVariant(s: Conv["status"]): "default" | "destructive" | "secondary" {
   return s === "waiting_human" ? "destructive" : s === "closed" ? "secondary" : "default";
+}
+
+function msgStyle(role: Msg["role"]) {
+  if (role === "user") {
+    return { align: "justify-start", bubble: "bg-background text-foreground", timeColor: "text-muted-foreground", icon: <User className="h-3 w-3 mr-1 inline-block opacity-60" />, label: "Paciente" };
+  }
+  if (role === "human_agent") {
+    return { align: "justify-end", bubble: "bg-emerald-600 text-white", timeColor: "text-emerald-100", icon: <UserCog className="h-3 w-3 mr-1 inline-block opacity-80" />, label: "Atendente" };
+  }
+  return { align: "justify-end", bubble: "bg-primary text-primary-foreground", timeColor: "text-primary-foreground/70", icon: <Bot className="h-3 w-3 mr-1 inline-block opacity-80" />, label: "Bot" };
 }
 
 function ConversationsPage() {
@@ -42,10 +52,8 @@ function ConversationsPage() {
   const [sending, setSending] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const send = useServerFn(sendAgentMessage);
-
   const active = convs.find((c) => c.id === activeId) ?? null;
 
-  // Load conversations + subscribe to realtime
   useEffect(() => {
     let channel: any;
     (async () => {
@@ -56,7 +64,6 @@ function ConversationsPage() {
         .order("last_message_at", { ascending: false, nullsFirst: false })
         .limit(100);
       setConvs((data ?? []) as unknown as Conv[]);
-
       channel = supabase
         .channel("conversations-feed")
         .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, async () => {
@@ -72,22 +79,16 @@ function ConversationsPage() {
     return () => { if (channel) channel.unsubscribe(); };
   }, []);
 
-  // Load messages for active conversation + subscribe
   useEffect(() => {
     if (!activeId) { setMsgs([]); return; }
     let channel: any;
     (async () => {
       const supabase = await getSupabase();
-      const { data } = await supabase
-        .from("messages").select("*").eq("conversation_id", activeId)
-        .order("created_at", { ascending: true });
+      const { data } = await supabase.from("messages").select("*").eq("conversation_id", activeId).order("created_at", { ascending: true });
       setMsgs((data ?? []) as Msg[]);
-
       channel = supabase
         .channel(`msgs-${activeId}`)
-        .on("postgres_changes", {
-          event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${activeId}`,
-        }, (payload) => {
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${activeId}` }, (payload) => {
           setMsgs((prev) => [...prev, payload.new as Msg]);
         })
         .subscribe();
@@ -118,22 +119,17 @@ function ConversationsPage() {
   return (
     <AppShell title="Conversas">
       <Card className="grid h-[calc(100vh-7rem)] grid-cols-[320px_1fr] overflow-hidden">
-        {/* sidebar list */}
         <div className="border-r flex flex-col min-h-0">
           <div className="border-b p-3 text-sm font-medium">Conversas ({convs.length})</div>
           <ScrollArea className="flex-1">
             {convs.length === 0 && (
               <div className="p-6 text-center text-sm text-muted-foreground">
-                <MessagesSquare className="mx-auto mb-2 h-8 w-8" />
-                Nenhuma conversa ainda.
+                <MessagesSquare className="mx-auto mb-2 h-8 w-8" />Nenhuma conversa ainda.
               </div>
             )}
             {convs.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setActiveId(c.id)}
-                className={`w-full border-b px-3 py-3 text-left hover:bg-muted/40 ${activeId === c.id ? "bg-muted/60" : ""}`}
-              >
+              <button key={c.id} onClick={() => setActiveId(c.id)}
+                className={`w-full border-b px-3 py-3 text-left hover:bg-muted/40 ${activeId === c.id ? "bg-muted/60" : ""}`}>
                 <div className="flex items-center justify-between gap-2">
                   <p className="truncate text-sm font-medium">{c.contacts?.name || c.contacts?.whatsapp_number || "Contato"}</p>
                   <Badge variant={statusVariant(c.status)} className="shrink-0 text-[10px]">{statusLabel(c.status)}</Badge>
@@ -146,12 +142,10 @@ function ConversationsPage() {
           </ScrollArea>
         </div>
 
-        {/* chat */}
         <div className="flex min-h-0 flex-col">
           {!active ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 text-muted-foreground">
-              <MessagesSquare className="h-10 w-10" />
-              <p className="text-sm">Selecione uma conversa</p>
+              <MessagesSquare className="h-10 w-10" /><p className="text-sm">Selecione uma conversa</p>
             </div>
           ) : (
             <>
@@ -179,18 +173,20 @@ function ConversationsPage() {
 
               <ScrollArea className="flex-1 bg-muted/20 p-4">
                 <div className="mx-auto flex max-w-2xl flex-col gap-2">
-                  {msgs.map((m) => (
-                    <div key={m.id} className={`flex ${m.role === "user" ? "justify-start" : "justify-end"}`}>
-                      <div className={`max-w-[75%] rounded-lg px-3 py-2 text-sm shadow-sm ${
-                        m.role === "user" ? "bg-background" : "bg-primary text-primary-foreground"
-                      }`}>
-                        <p className="whitespace-pre-wrap">{m.content}</p>
-                        <p className={`mt-1 text-[10px] ${m.role === "user" ? "text-muted-foreground" : "text-primary-foreground/70"}`}>
-                          {new Date(m.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                        </p>
+                  {msgs.map((m) => {
+                    const style = msgStyle(m.role);
+                    return (
+                      <div key={m.id} className={`flex ${style.align}`}>
+                        <div className={`max-w-[75%] rounded-lg px-3 py-2 text-sm shadow-sm ${style.bubble}`}>
+                          <p className="text-[10px] font-medium mb-1 opacity-70">{style.icon}{style.label}</p>
+                          <p className="whitespace-pre-wrap">{m.content}</p>
+                          <p className={`mt-1 text-[10px] ${style.timeColor}`}>
+                            {new Date(m.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <div ref={endRef} />
                 </div>
               </ScrollArea>
@@ -198,12 +194,12 @@ function ConversationsPage() {
               <div className="border-t p-3">
                 <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-2">
                   <Input
-                    placeholder={active.status === "bot_active" ? "Bot está ativo — assuma para responder" : "Escreva uma mensagem…"}
+                    placeholder={active.status === "bot_active" ? "Bot está ativo — assuma para responder" : active.status === "closed" ? "Conversa encerrada" : "Escreva uma mensagem…"}
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
-                    disabled={sending || active.status === "closed"}
+                    disabled={sending || active.status === "closed" || active.status === "bot_active"}
                   />
-                  <Button type="submit" disabled={sending || !draft.trim() || active.status === "closed"}>
+                  <Button type="submit" disabled={sending || !draft.trim() || active.status === "closed" || active.status === "bot_active"}>
                     <Send className="h-4 w-4" />
                   </Button>
                 </form>
