@@ -9,7 +9,12 @@ type AuthCtx = {
   signOut: () => Promise<void>;
 };
 
-const Ctx = createContext<AuthCtx>({ user: null, session: null, loading: true, signOut: async () => {} });
+const Ctx = createContext<AuthCtx>({
+  user: null,
+  session: null,
+  loading: true,
+  signOut: async () => {},
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -20,24 +25,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let mounted = true;
     let unsubscribe: (() => void) | undefined;
 
-    getSupabase().then((supabase) => {
-      if (!mounted) return;
-
-      const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-        setSession(s);
-        setUser(s?.user ?? null);
-      });
-      unsubscribe = () => sub.subscription.unsubscribe();
-
-      supabase.auth.getSession().then(({ data }) => {
+    getSupabase()
+      .then((supabase) => {
         if (!mounted) return;
-        setSession(data.session);
-        setUser(data.session?.user ?? null);
-        setLoading(false);
+
+        const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+          setSession(s);
+          setUser(s?.user ?? null);
+        });
+        unsubscribe = () => sub.subscription.unsubscribe();
+
+        supabase.auth.getSession().then(({ data }) => {
+          if (!mounted) return;
+          setSession(data.session);
+          setUser(data.session?.user ?? null);
+          setLoading(false);
+        });
+      })
+      .catch(() => {
+        if (mounted) setLoading(false);
       });
-    }).catch(() => {
-      if (mounted) setLoading(false);
-    });
 
     return () => {
       mounted = false;
@@ -46,7 +53,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Ctx.Provider value={{ user, session, loading, signOut: async () => { const supabase = await getSupabase(); await supabase.auth.signOut(); } }}>
+    <Ctx.Provider
+      value={{
+        user,
+        session,
+        loading,
+        signOut: async () => {
+          const supabase = await getSupabase();
+          await supabase.auth.signOut();
+        },
+      }}
+    >
       {children}
     </Ctx.Provider>
   );
