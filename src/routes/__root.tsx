@@ -2,14 +2,20 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
+  ClientOnly,
   createRootRouteWithContext,
   useRouter,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { lazy } from "react";
 
 import appCss from "../styles.css?url";
-import { AuthProvider } from "@/hooks/useAuth";
+
+const AuthProvider = lazy(() =>
+  import("@/hooks/useAuth").then((m) => ({ default: m.AuthProvider })),
+);
+
 
 function NotFoundComponent() {
   return (
@@ -114,10 +120,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Outlet />
-      </AuthProvider>
+      <ClientOnly fallback={<div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Carregando…</div>}>
+        <AuthProvider>
+          <Outlet />
+        </AuthProvider>
+      </ClientOnly>
     </QueryClientProvider>
   );
 }
+
 
